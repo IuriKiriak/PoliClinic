@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <h1>Ближайшие записи</h1>
+</div>
+
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Запись на прием к врачу</h1>
+
+    <form action="{% url 'register_record' %}" method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name_records" class="form-label">Поиск по специалистам</label>
+            <input type="text" class="form-control" id="name_records" name="name_records" required>
+        </div>
+        <div class="mb-3">
+            <label for="doctor" class="form-label">Выберите врача</label>
+            <select class="form-select" id="doctor" name="doctor" >
+                <option value="" disabled selected>Выберите врача</option>
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}">{{ doctor.first_name }} {{ doctor.last_name }} - {{ doctor.role_doctor }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Дата записи</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+        <div class="mb-3">
+            <label for="time" class="form-label">Время записи</label>
+            <input type="time" class="form-control" id="time" name="time" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Записаться</button>
+    </form>
+</div>
+{% endblock %}
