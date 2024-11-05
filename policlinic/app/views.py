@@ -1,10 +1,15 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import logout
 from .models import *
 from django.utils import timezone
 
 
 def index(request):
     return render(request, 'index.html')
+
+
+# def logout_view(request):
+#     logout(request)
 
 def personal_page(request):
     return render(request, 'personal_page.html')

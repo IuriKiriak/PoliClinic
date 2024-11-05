@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -45,9 +46,13 @@
                     <box-icon name='user-circle' size="md"></box-icon>
                         <p class="ms-2">{{ user.first_name }} {{ user.last_name }} {{ user.middle_name }}</p>
                 </a>
-                <a href="#" class="text-danger">
-                    <box-icon name='log-out-circle' size="md"></box-icon>
-                </a>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="button-icon">
+                        <box-icon name='log-out-circle' size="md"></box-icon>
+                    </button>
+                </form>
+
                 {% else %}
                 <a href="{% url 'login' %}" class="d-flex align-items-center">
                     <box-icon name='user-circle' size="md"></box-icon>
