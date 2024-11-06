@@ -1,11 +1,10 @@
-from cmath import polar
-from unittest.mock import DEFAULT
-
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import TextField, CharField, DateField, Model, CASCADE, ForeignKey, SET_NULL
+from django.core.files.storage import FileSystemStorage
+
 
 class Policy(models.Model):
     policy_number = models.IntegerField(verbose_name="Полис")
@@ -26,13 +25,13 @@ class User(AbstractUser):
 
     def __str__(self):
         if self.middle_name == "":
-            return self.first_name + " " + self.last_name[0] + "."
+            return self.first_name + " " + self.last_name + "."
         else:
-            return self.first_name + " " + self.last_name[0] + "." + self.middle_name[0] + "."
+            return self.first_name + " " + self.last_name + "." + self.middle_name + "."
 
 
 class Specialization(models.Model):
-    specialization = models.CharField(max_length=100, verbose_name="Специализация")
+    specialization = models.CharField(max_length=100, unique=True, verbose_name="Специализация")
     description = models.TextField(verbose_name="Описание")
 
     def __str__(self):
@@ -48,7 +47,7 @@ class Doctors(models.Model):
     specialization = ForeignKey(Specialization, on_delete=SET_NULL, null=True, verbose_name="Специализация")
 
     def __str__(self):
-        return self.user.first_name + " " + self.user.last_name + " " + self.user.middle_name + " " + self.specialization.specialization
+        return self.user.first_name + " " + self.user.last_name + " " + self.user.middle_name + " - " + self.specialization.specialization
 
     class Meta:
         verbose_name = "Доктор"
@@ -99,16 +98,28 @@ class Direction(models.Model):
         verbose_name = "Направление"
         verbose_name_plural = "Направления"
 
+
 class FilePDF(models.Model):
     name_file = models.CharField(max_length=255, verbose_name="Название файла")
-    file_path = models.FileField(verbose_name="Путь к файлу")
+    file_path = models.FileField(verbose_name="Путь к файлу", upload_to="pdf")
 
     def __str__(self):
         return str(self.file_path)
 
+    def delete(self, *args, **kwargs):
+
+        storage, path = self.file_path.storage, self.file_path.path
+
+        super(FilePDF, self).delete(*args, **kwargs)
+        try:
+            storage.delete(path)
+        except Exception as e:
+            print(f'ошибка при удалении файла по пути {path}: {e}')
+
     class Meta:
         verbose_name = "Файл PDF"
         verbose_name_plural = "Файлы PDF"
+
 
 class ResearchResults(models.Model):
     user = models.ForeignKey(User, on_delete=CASCADE, default=None, verbose_name="Пользователь")
@@ -130,7 +141,8 @@ class Records(models.Model):
     user = models.ForeignKey(User, on_delete=CASCADE, verbose_name="Пользователь")
     doctor = models.ForeignKey(Doctors, on_delete=models.SET_NULL, null=True, verbose_name="Доктор")
     date_create = models.DateTimeField(auto_now=True, verbose_name="Дата создания")
-    date_record = DateField(default=None, verbose_name="День записи")
+    date_record = models.DateField(default=None, verbose_name="День записи")
+    date_time = models.TimeField(default=None, verbose_name="Время записи")
 
     def __str__(self):
         return self.name_records
