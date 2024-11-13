@@ -7,13 +7,12 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
 
-    path('doctors/', views.DoctorsView.as_view()),
-    path('institution/', views.InstitutionView.as_view()),
-    path('record/', views.RecordsView.as_view()),
-    path('user/', views.UserView.as_view()),
-    path('file-pdf/', views.FilePDFView.as_view()),
+    path('v1/doctors/', views.DoctorsView.as_view()),
+    path('v1/institution/', views.InstitutionView.as_view()),
+    path('v1/records/', views.RecordsView.as_view()),
+    path('v1/users/', views.UsersView.as_view()),
+    path('v1/user/', views.UserView.as_view()),
+    path('v1/doctors/', views.DoctorsView.as_view()),
+    path('v1/file-pdf/', views.FilePDFView.as_view()),
+    path('v1/doctor-reviews/', views.DoctorsReviewsView.as_view()),
 ]
-
-if settings.DEBUG:
-    # Добавляем маршрут для медиа-файлов
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

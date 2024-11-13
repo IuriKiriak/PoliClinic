@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -20,14 +21,20 @@ class Policy(models.Model):
 
 
 class User(AbstractUser):
-    middle_name = models.CharField(max_length=30, default=None, blank=True,verbose_name="Отчество")
+    middle_name = models.CharField(max_length=30, default=None, blank=True, null=True, verbose_name="Отчество")
     policy = models.OneToOneField(Policy, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Полис")
 
     def __str__(self):
         if self.middle_name == "":
             return self.first_name + " " + self.last_name + "."
         else:
-            return self.first_name + " " + self.last_name + "." + self.middle_name + "."
+            return str(self.first_name) + " " + str(self.last_name) + "." + str(self.middle_name) + "."
+
+    def save(self, *args, **kwargs):
+        # Check if the password is set and not already hashed
+        if self.password and not self.password.startswith('pbkdf2_sha256$'):
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
 
 class Specialization(models.Model):
